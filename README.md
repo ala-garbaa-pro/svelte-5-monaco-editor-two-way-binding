@@ -69,11 +69,14 @@ Below is the implementation of the `CodeEditor` component:
 
 	onMount(() => {
 		(async () => {
+			// Remove the next two lines to load the monaco editor from a CDN
+			// see https://www.npmjs.com/package/@monaco-editor/loader#config
 			const monacoEditor = await import('monaco-editor');
 			loader.config({ monaco: monacoEditor.default });
 
 			monaco = await loader.init();
 
+			// Your monaco instance is ready, let's display some code!
 			editor = monaco.editor.create(editorContainer, {
 				value,
 				language,
@@ -81,23 +84,38 @@ Below is the implementation of the `CodeEditor` component:
 				automaticLayout: true,
 				overviewRulerLanes: 0,
 				overviewRulerBorder: false,
-				wordWrap: 'on',
+				wordWrap: 'on'
 			});
 
-			editor.onDidChangeModelContent(() => {
-				const updatedValue = editor?.getValue() ?? '';
-				value = updatedValue;
+			editor.onDidChangeModelContent((e) => {
+				if (e.isFlush) {
+					// true if setValue call
+					//console.log('setValue call');
+					/* editor.setValue(value); */
+				} else {
+					// console.log('user input');
+					const updatedValue = editor?.getValue() ?? ' ';
+					value = updatedValue;
+				}
 			});
 		})();
 	});
 
 	$effect(() => {
-		if (value === '') {
-			if (editor) editor.setValue(' ');
-		} else {
-			if (editor && !editor.hasWidgetFocus()) {
-				editor?.setValue(value);
+		if (value) {
+			if (editor) {
+				// check if the editor is focused
+				if (editor.hasWidgetFocus()) {
+					// let the user edit with no interference
+				} else {
+					if (editor?.getValue() ?? ' ' !== value) {
+						editor?.setValue(value);
+					}
+				}
 			}
+		}
+		if (value === '') {
+			editor?.setValue(' ');
 		}
 	});
 
@@ -107,12 +125,6 @@ Below is the implementation of the `CodeEditor` component:
 	});
 </script>
 
-<button
-	onclick={() => {
-		editor.setValue(value);
-	}}>set to apple</button
->
-{value}
 <div class="container" bind:this={editorContainer}></div>
 
 <style>
