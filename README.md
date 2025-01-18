@@ -2,6 +2,9 @@
 
 This project is a Svelte-based application that integrates the Monaco Editor and a customizable Textarea for rich text editing. Below are the steps to set up and test the project.
 
+![demo](https://github.com/user-attachments/assets/5c7be488-98ed-4255-8e60-88bc0b7580d6)
+
+
 ## Project Setup
 
 ### Create a New Svelte Project
